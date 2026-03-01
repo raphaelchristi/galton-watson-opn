@@ -11,7 +11,7 @@ Key optimizations vs v1:
   - Cached Φ₃ factorizations
   - No scatter plot data collection
 
-Author: Raphael Christi (bilubiteco)
+Author: Raphael Christi
 Date: March 2026
 """
 
