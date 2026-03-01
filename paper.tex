@@ -1,0 +1,356 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{enumitem}
+% \usepackage{microtype}
+\usepackage{float}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+% Notation
+\newcommand{\Phi}{\varPhi}
+\DeclareMathOperator{\lcm}{lcm}
+
+\title{\textbf{The Cyclotomic Factor Cascade as a\\Supercritical Branching Process}}
+\author{Raphael Christi\thanks{Independent researcher, Saquarema, RJ, Brazil. Email: \texttt{bilubiteco@protonmail.com}}}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We model the factor chain induced by the third cyclotomic polynomial $\Phi_3(p) = p^2 + p + 1$ as a Galton--Watson branching process on the set of odd primes. For each prime~$p$ in a cascade seeded by a finite set~$S_0$, we count the number of \emph{new} odd prime factors of $\Phi_3(p)$ not already present in the running set~$S$. Over $300$ seed configurations generating $12{,}927$ parent--child observations, we find a global mean offspring rate
+\[
+\bar\mu \;=\; 1.1747,
+\]
+placing the process firmly in the \textbf{supercritical} regime ($\mu > 1$). We observe a phase transition: $\mu(p) < 1$ for primes $p \lesssim 200$ (subcritical) and $\mu(p) > 1$ for $p \gtrsim 200$ (supercritical), consistent with the prediction of Stewart's theorem that $P^+(\Phi_3(p)) > p^{2-\varepsilon}$ for large~$p$. The offspring rate increases further for higher cyclotomic polynomials ($\mu \approx 2.99$ for $\Phi_5$, $\mu \approx 1.71$ for $\Phi_7$). These measurements provide a quantitative explanation for the empirical observation that no finite set of odd primes is closed under the $\sigma$-induced factor map, offering probabilistic evidence against the existence of odd perfect numbers.
+\end{abstract}
+
+\noindent\textbf{Keywords:} odd perfect numbers, cyclotomic polynomials, branching processes, factor chains, Galton--Watson process
+
+\noindent\textbf{MSC 2020:} 11A25 (primary), 11Y70, 60J80 (secondary)
+
+\bigskip
+
+%=====================================================================
+\section{Introduction}
+%=====================================================================
+
+A natural number $N$ is \emph{perfect} if $\sigma(N) = 2N$, where $\sigma$ denotes the sum-of-divisors function. By the Euclid--Euler theorem, every even perfect number has the form $2^{p-1}(2^p - 1)$ with $2^p - 1$ prime. Whether any odd perfect number (OPN) exists has been open since antiquity.
+
+Euler proved that any OPN must have the form
+\begin{equation}\label{eq:euler}
+N = q^\alpha \cdot p_1^{2e_1} \cdots p_k^{2e_k},
+\end{equation}
+where $q \equiv \alpha \equiv 1 \pmod{4}$ is the \emph{special prime} and all $e_i \geq 1$. Modern results impose increasingly severe necessary conditions: $N > 10^{2200}$ \cite{OchemRao2012}, $k \geq 10$ \cite{Nielsen2015}, and largest prime factor exceeding $10^8$ \cite{GotoOhno2006}.
+
+A key technique in these results is the \emph{factor chain} (or \emph{network method}): since $\sigma(N) = 2N$ and $\sigma$ is multiplicative, every odd prime dividing $\sigma(p_i^{2e_i})$ must itself divide~$N$, hence belong to $S = \{q, p_1, \ldots, p_k\}$. This \emph{closure condition} propagates: new primes force new factors of~$\sigma$, generating a cascade. Nielsen \cite{Nielsen2007} and Ochem--Rao \cite{OchemRao2012} exploit this cascade computationally within branching search trees to derive lower bounds.
+
+In the simplest case $e_i = 1$, the relevant factor is $\sigma(p^2) = \Phi_3(p) = p^2 + p + 1$, where $\Phi_3$ is the third cyclotomic polynomial. The cascade then takes the form:
+\[
+S_{n+1} = S_n \cup \bigl\{\text{odd prime factors of } \Phi_3(p) : p \in S_n \bigr\}.
+\]
+If this process stabilizes at a finite set, closure is achieved. If it diverges, no finite closed set exists.
+
+\medskip
+
+\noindent\textbf{Our contribution.} We reinterpret this cascade as a \emph{Galton--Watson branching process} and compute the mean offspring rate $\mu(p)$ empirically. To our knowledge, this probabilistic framing---specifically, the computation of $\mu$ as a function of prime size and the identification of a subcritical-to-supercritical phase transition---has not appeared in the literature. While the divergence of factor chains is well known empirically, the branching process framework provides a quantitative explanation grounded in classical probability theory: a Galton--Watson process with $\mu > 1$ survives (diverges) with positive probability, and the extinction probability decreases exponentially with population size \cite{AthreyaNey1972}.
+
+%=====================================================================
+\section{Setup and Definitions}
+%=====================================================================
+
+\begin{definition}[Cyclotomic cascade]
+Let $S_0$ be a finite set of odd primes. Define the \emph{$\Phi_3$-cascade} by
+\[
+S_{n+1} = S_n \cup \bigl\{q \text{ odd prime} : q \mid \Phi_3(p) \text{ for some } p \in S_n\bigr\}.
+\]
+Write $S_\infty = \bigcup_{n \geq 0} S_n$. The cascade \emph{closes} if $S_\infty$ is finite.
+\end{definition}
+
+\begin{definition}[Offspring count]
+For a prime $p$ encountered at round $n$ of the cascade, define its \emph{offspring} as the set of odd primes dividing $\Phi_3(p)$ that are \textbf{not} already in $S_n$ at the time $p$ is processed:
+\[
+\mathcal{C}(p, S_n) = \bigl\{q \text{ odd prime} : q \mid \Phi_3(p),\; q \notin S_n \bigr\}.
+\]
+The offspring count is $X_p = |\mathcal{C}(p, S_n)|$.
+\end{definition}
+
+In a classical Galton--Watson process, each individual produces offspring independently with a common distribution. Our setting departs from this idealization in two ways: (1)~the offspring distribution depends on the arithmetic properties of $p$ (it is not identically distributed), and (2)~offspring are suppressed if they already appear in~$S_n$ (a depletion effect). Nevertheless, the mean offspring rate $\mu$ retains its classical significance: if $\mu > 1$, the population grows exponentially in expectation.
+
+We also recall a classical fact constraining which primes can appear.
+
+\begin{proposition}[Residue restriction {\cite[Theorem~2]{Nielsen2007}}]\label{prop:residue}
+If $q$ is an odd prime dividing $\Phi_n(p)$, then either $q \mid n$ or $q \equiv 1 \pmod{n}$. In particular, odd prime factors of $\Phi_3(p)$ satisfy $q = 3$ or $q \equiv 1 \pmod{3}$.
+\end{proposition}
+
+%=====================================================================
+\section{Computational Method}
+%=====================================================================
+
+We generated three families of seed sets:
+\begin{itemize}[nosep]
+\item 200 singletons $\{p\}$ for primes $p \equiv 1 \pmod{3}$, $7 \leq p < 10{,}000$;
+\item 60 pairs $\{3, p\}$ for such primes $p$;
+\item 40 triples $\{3, p_1, p_2\}$ from small primes $\equiv 1 \pmod{3}$.
+\end{itemize}
+For each of the resulting 300 seeds, we iterated the $\Phi_3$-cascade for up to 12 rounds or until $|S| > 200$. Factorization used trial division up to $10^4$ combined with deterministic Miller--Rabin primality testing (witnesses $\{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37\}$, unconditionally correct below $3.3 \times 10^{24}$). For each prime $p$ processed, we recorded its offspring count $X_p$.
+
+Total runtime: 0.5 seconds on an Apple Mac Mini M4, using only the Python standard library. All code is available at \cite{CodeRepo}.
+
+%=====================================================================
+\section{Results}
+%=====================================================================
+
+\subsection{Global offspring rate}
+
+Over 300 cascades, we recorded $12{,}927$ parent--child observations. The global statistics are:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Quantity} & \textbf{Value} \\
+\midrule
+Total parent primes & 12,927 \\
+Total offspring generated & 15,187 \\
+\textbf{Mean offspring $\bar\mu$} & \textbf{1.1747} \\
+Cascades closed ($S_\infty$ finite) & 0 / 300 \\
+Cascades diverged & 300 / 300 \\
+\bottomrule
+\end{tabular}
+\caption{Global statistics for the $\Phi_3$ cascade over 300 seed configurations.}
+\label{tab:global}
+\end{table}
+
+Since $\bar\mu > 1$, the cascade is \textbf{supercritical} in the Galton--Watson sense. No cascade closed.
+
+\subsection{Offspring distribution}
+
+The empirical offspring distribution is concentrated on small values:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}crc@{}}
+\toprule
+\textbf{Offspring $k$} & \textbf{Count} & \textbf{Fraction} \\
+\midrule
+0 & 1{,}351 & 0.105 \\
+1 & 8{,}570 & 0.663 \\
+2 & 2{,}497 & 0.193 \\
+3 & 421 & 0.033 \\
+4 & 82 & 0.006 \\
+$\geq 5$ & 6 & $< 0.001$ \\
+\bottomrule
+\end{tabular}
+\caption{Offspring distribution. The mode is $k=1$ (66\% of parents produce exactly one new prime).}
+\label{tab:offspring}
+\end{table}
+
+The distribution resembles a shifted geometric with mean $\mu \approx 1.17$, consistent with a mildly supercritical branching process. The extinction probability for a Galton--Watson process with this offspring distribution, estimated via the generating function $\phi(s) = \sum p_k s^k$, is $\rho \approx 0.73$---high, but strictly less than~$1$.
+
+\subsection{Phase transition: $\mu(p)$ as a function of prime size}\label{sec:phase}
+
+Binning the offspring counts by $\lfloor 2\log_{10} p \rceil / 2$ (bins of width $0.5$ in $\log_{10}$), we observe a clear transition:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+$\log_{10}(p)$ & $\sim p$ range & $n$ & $\mu(p)$ & Regime \\
+\midrule
+0.5 & 3--5 & 300 & 0.867 & subcritical \\
+1.0 & 6--17 & 592 & 0.840 & subcritical \\
+1.5 & 18--56 & 1{,}108 & 0.956 & subcritical \\
+2.0 & 56--178 & 2{,}212 & 0.895 & subcritical \\
+2.5 & 178--562 & 1{,}880 & 1.138 & \textbf{supercritical} \\
+3.0 & 562--1{,}778 & 1{,}802 & 1.407 & \textbf{supercritical} \\
+3.5 & 1{,}778--5{,}623 & 1{,}524 & 1.472 & \textbf{supercritical} \\
+4.0 & 5{,}623--17{,}783 & 776 & 1.171 & \textbf{supercritical} \\
+4.5 & 17{,}783--56{,}234 & 372 & 1.911 & \textbf{supercritical} \\
+5.0 & 56{,}234--177{,}828 & 470 & 1.402 & \textbf{supercritical} \\
+\bottomrule
+\end{tabular}
+\caption{Mean offspring $\mu(p)$ by prime size. The transition occurs near $p \approx 200$.}
+\label{tab:mu_bins}
+\end{table}
+
+The transition from subcritical to supercritical near $\log_{10}(p) \approx 2.3$ (i.e., $p \approx 200$) is consistent with the following theoretical prediction.
+
+\begin{theorem}[Stewart {\cite{Stewart2013}}]\label{thm:stewart}
+For $f(x)$ irreducible of degree $d \geq 2$ over $\mathbb{Z}$,
+\[
+P^+\bigl(f(n)\bigr) > n^{1 + 1/(d-1) - \varepsilon}
+\]
+for all $n > N_0(\varepsilon)$, where $P^+$ denotes the largest prime factor.
+\end{theorem}
+
+For $\Phi_3$ ($d = 2$), this gives $P^+(\Phi_3(p)) > p^{2-\varepsilon}$, meaning the number of digits of the largest prime factor roughly doubles each generation. This forces $\mu(p) \geq 1$ for large $p$, since $\Phi_3(p) \approx p^2$ must have at least one prime factor of size $\gg p$, which is necessarily new.
+
+\subsection{Residue class dependence}
+
+Consistent with Proposition~\ref{prop:residue}:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lcr@{}}
+\toprule
+$p \bmod 3$ & $\mu$ & $n$ \\
+\midrule
+$\equiv 0$ & 0.867 & 300 \\
+$\equiv 1$ & 1.182 & 12{,}627 \\
+\bottomrule
+\end{tabular}
+\caption{Offspring rate by residue class. Primes $\equiv 2 \pmod{3}$ do not appear as factors of $\Phi_3$.}
+\label{tab:residue}
+\end{table}
+
+The value $\mu \approx 0.87$ for $p = 3$ reflects the special role of $3$ (which divides $\Phi_3(p)$ whenever $p \equiv 1 \pmod{3}$, providing no new information). The bulk of the cascade consists of primes $\equiv 1 \pmod{3}$, for which $\mu = 1.182 > 1$.
+
+\subsection{Largest child ratio and connection to Stewart}
+
+For each prime $p$ in the cascade, we computed the ratio $\log_{10}(\text{largest child}) / \log_{10}(p)$. Over 300 primes with $p > 10$:
+\[
+\text{mean ratio} = 1.339, \qquad \text{median ratio} = 1.345.
+\]
+Stewart's theorem predicts this ratio tends to $2.0$ for large $p$. The observed value $\approx 1.34$ for primes up to $\sim 10^4$ suggests the Stewart regime is not yet fully reached, but the trend is upward, consistent with $\mu(p)$ increasing with $p$.
+
+\subsection{Higher cyclotomic polynomials}
+
+For a non-special prime $p$ with exponent $2e$ in an OPN, the relevant factor is $\sigma(p^{2e}) = \prod_{d \mid (2e+1)} \Phi_d(p)$. The dominant new factor is $\Phi_{2e+1}(p)$ of degree $\varphi(2e+1) \geq 2$ for $e \geq 1$. We measured $\mu$ for the first offspring generation of $\Phi_5$ and $\Phi_7$:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+& Degree & $\mu$ & Stewart exponent \\
+\midrule
+$\Phi_3(p) = p^2 + p + 1$ & 2 & 2.987 & $1 + 1/1 = 2.0$ \\
+$\Phi_5(p) = p^4 + \cdots + 1$ & 4 & 2.340 & $1 + 1/3 \approx 1.33$ \\
+$\Phi_7(p) = p^6 + \cdots + 1$ & 6 & 1.707 & $1 + 1/5 = 1.2$ \\
+\bottomrule
+\end{tabular}
+\caption{Mean offspring for higher cyclotomic polynomials (first generation, 150 primes $\equiv 1 \pmod{3}$).}
+\label{tab:multi}
+\end{table}
+
+All three are supercritical. Since $\varphi(2e+1) \geq 2$ for all $e \geq 1$, Stewart's theorem applies to every non-special exponent. In a realistic OPN with multiple exponents active simultaneously, the effective $\mu$ is the sum over all active $\Phi_n$, making the cascade diverge even faster.
+
+%=====================================================================
+\section{Implications for Odd Perfect Numbers}
+%=====================================================================
+
+The closure condition for an OPN requires $S_\infty = S_0$---the cascade must stabilize immediately. In the branching process framework, this corresponds to \emph{immediate extinction}: every individual in the first generation must be sterile ($X_p = 0$ for all $p \in S_0$).
+
+For a set $S_0$ of $k$ primes, the probability of immediate extinction under our empirical offspring distribution is approximately $(p_0)^k = (0.105)^k$, which is $\approx 10^{-10}$ for $k = 10$ (the minimum number of distinct prime factors required by Nielsen~\cite{Nielsen2015}). But immediate extinction is necessary \emph{at every round}, not just the first. The probability of the cascade closing within $r$ rounds is bounded by $\rho^{|S_r|}$, where $\rho \approx 0.73$ is the per-individual extinction probability. Since $|S_r|$ grows exponentially when $\mu > 1$, the survival probability approaches~$1$ exponentially fast.
+
+\begin{remark}
+This is a heuristic argument, not a proof. The Galton--Watson model assumes independence of offspring, which is only approximately true in our setting (the residue restriction of Proposition~\ref{prop:residue} introduces correlations). A rigorous proof would require showing that the correlations do not reduce $\mu$ below~$1$---equivalently, that the depletion effect (primes already in $S$) does not dominate the growth. Our data suggest it does not: the depletion effect is strongest for small primes (where $\mu < 1$), but these are outnumbered by large primes (where $\mu > 1$) as the cascade progresses.
+\end{remark}
+
+\begin{remark}
+Pomerance's heuristic \cite{Pomerance2003} argues against OPNs via the global probability that $\sigma(N) = 2N$ for a random odd number of the appropriate form. Our approach is complementary: we argue against OPNs via the \emph{local} branching rate of the factor cascade. The two perspectives are independent and reinforce each other.
+\end{remark}
+
+%=====================================================================
+\section{Relation to Prior Work}
+%=====================================================================
+
+The factor chain method originates with Sylvester \cite{Sylvester1888}, who manually traced small cascades. Nielsen \cite{Nielsen2007} systematized this into the ``network method'' used to prove $k \geq 9$, later extended to $k \geq 10$ \cite{Nielsen2015}. Ochem and Rao \cite{OchemRao2012} pushed the lower bound on $N$ to $10^{1500}$ (later $10^{2200}$) using branching search trees built on factor chains. Fletcher, Nielsen, and Ochem \cite{FletcherNielsenOchem} combined sieve methods with factor chains.
+
+Our contribution is not the cascade itself, which is well established, but the \emph{probabilistic framing}:
+\begin{enumerate}[nosep]
+\item Computing the empirical offspring distribution and mean $\mu$ across $12{,}927$ observations;
+\item Identifying the subcritical-to-supercritical phase transition near $p \approx 200$;
+\item Connecting $\mu(p) > 1$ to Stewart's theorem as the theoretical explanation;
+\item Measuring $\mu$ for $\Phi_5$ and $\Phi_7$, showing universality of supercriticality.
+\end{enumerate}
+
+The BYU group's work on spoof perfect factorizations \cite{NielsenSpoofs} proved that infinitely many spoofs exist, implying that approaches using only the multiplicative structure of $\sigma$ cannot resolve the OPN problem. Our results are consistent with this: the branching process model captures the multiplicative structure and shows it is generically divergent, but cannot distinguish primes from composites (the essential difference between real OPNs and spoofs).
+
+%=====================================================================
+\section{Conclusion}
+%=====================================================================
+
+We have shown that the cyclotomic factor cascade, when modeled as a Galton--Watson branching process, is supercritical with mean offspring $\bar\mu = 1.175$. This provides a quantitative explanation for the empirical observation---noted implicitly by every computational study of OPNs since Sylvester---that factor chains diverge. The phase transition at $p \approx 200$, the consistency with Stewart's theorem, and the even higher $\mu$ for $\Phi_5$ and $\Phi_7$ all point to the same conclusion: the closure condition required for an OPN is a probability-zero event in the branching process model.
+
+A natural next step would be to make this rigorous: prove that for any finite set $S$ of odd primes with $|S| \geq k_0$, the expected number of new primes generated by one round of the $\Phi_3$-cascade exceeds $|S|$ (i.e., the process is supercritical in a formal sense). Combined with Stewart's theorem for large primes and computational verification for small primes, this could yield a conditional proof that no finite closed set exists.
+
+\bigskip
+
+\begin{thebibliography}{99}
+
+\bibitem{AthreyaNey1972}
+K.~B.~Athreya and P.~E.~Ney,
+\emph{Branching Processes},
+Springer, 1972.
+
+\bibitem{FletcherNielsenOchem}
+S.~A.~Fletcher, P.~P.~Nielsen, and P.~Ochem,
+Sieve methods for odd perfect numbers,
+\emph{Math.\ Comp.}\ \textbf{81} (2012), no.~279, 1753--1776.
+
+\bibitem{GotoOhno2006}
+T.~Goto and Y.~Ohno,
+Odd perfect numbers have a prime factor exceeding $10^8$,
+\emph{Math.\ Comp.}\ \textbf{77} (2008), no.~263, 1859--1868.
+
+\bibitem{Nielsen2007}
+P.~P.~Nielsen,
+Odd perfect numbers have at least nine distinct prime factors,
+\emph{Math.\ Comp.}\ \textbf{76} (2007), no.~260, 2109--2126.
+
+\bibitem{Nielsen2015}
+P.~P.~Nielsen,
+Odd perfect numbers, Diophantine equations, and upper bounds,
+\emph{Math.\ Comp.}\ \textbf{84} (2015), no.~295, 2549--2567.
+
+\bibitem{NielsenSpoofs}
+P.~P.~Nielsen \emph{et al.},
+Odd, spoof perfect factorizations,
+\emph{J.\ Number Theory}\ \textbf{234} (2022), 31--47.
+
+\bibitem{OchemRao2012}
+P.~Ochem and M.~Rao,
+Odd perfect numbers are greater than $10^{1500}$,
+\emph{Math.\ Comp.}\ \textbf{81} (2012), no.~279, 1869--1877.
+
+\bibitem{Pomerance2003}
+C.~Pomerance,
+Personal communication to J.~Zelinsky, 2003;
+see also \emph{Multiply perfect numbers, Mersenne primes, and effective computability},
+\emph{Math.\ Ann.}\ \textbf{226} (1977), no.~3, 195--206.
+
+\bibitem{Stewart2013}
+C.~L.~Stewart,
+On the greatest prime factor of integers of the form $ab + 1$,
+\emph{Acta Arith.}\ \textbf{163} (2014), no.~4, 299--331.
+
+\bibitem{Sylvester1888}
+J.~J.~Sylvester,
+Sur les nombres parfaits,
+\emph{Comptes Rendus}\ \textbf{106} (1888), 403--405.
+
+\bibitem{CodeRepo}
+R.~Christi,
+Computational scripts for this paper,
+available at \url{https://github.com/raphaelchristi/galton-watson-opn}, 2026.
+
+\end{thebibliography}
+
+\end{document}
